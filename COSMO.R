@@ -198,6 +198,26 @@ Oyster_Size_Histogram <- COSMO_OysterSizes %>%
   plot_layout(guides = "collect", axes = "collect")
 Oyster_Size_Histogram
 
+#####Oyster Density Boxplot#####
+Oys_Density_Boxplot <- COSMO_Processed_Filtered %>% 
+  ggplot(mapping = aes(
+    x = Site,
+    y = oys_per_m2
+  )
+  ) +
+  geom_boxplot(aes(fill = Site), outlier.shape = NA, alpha = 0.7) +
+  scale_fill_manual(limits = Site_List, values = sitecolors) +
+  geom_jitter(color = "darkgrey", height = 0, width = 0.3, alpha = 0.5) + 
+  stat_summary(fun.y="mean", shape = 5, size = 0.4, position = position_dodge(0.55), color = "black")+
+  labs(y = bquote("Oysters/"*m^2)) +
+  basic_plot_aesthetics() +
+  theme(legend.position = "none") +
+  facet_grid(~ Year, scales = "free_y") +
+  plot_layout(guides = "collect", axes = "collect") +
+  coord_cartesian(ylim = c(0, 200))
+Oys_Density_Boxplot
+ggsave(path = "Plots", filename = "Oyster Abundance vs. Site Boxplot.jpg", width = 10, height = 10)
+
 #####Primary Percent Cover vs Site Boxplot#####
 Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_aggregated_pivoted %>%
   ggplot(mapping = aes(
