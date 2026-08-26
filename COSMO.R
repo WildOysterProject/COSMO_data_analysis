@@ -62,12 +62,12 @@ Percent_Cover_aggregated <- Percent_Cover_unpivoted_trimmed %>%
   mutate(
     `Green Algae spp.` = rowSums(dplyr::select(., all_of(`Green Algae spp.`)), na.rm = T),
     `Green Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Green Algae spp. canopy`)), na.rm = T),
-    `Red/Brown Algae spp.` = rowSums(dplyr::select(., all_of(`Red Algae spp.`)), na.rm = T),
-    `Red/Brown Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Red Algae spp. canopy`)), na.rm = T),
+    `Red/Brown Algae spp.` = rowSums(dplyr::select(., all_of(`Red/Brown Algae spp.`)), na.rm = T),
+    `Red/Brown Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Red/Brown Algae spp. canopy`)), na.rm = T),
     `Bryozoan spp.` = rowSums(dplyr::select(., all_of(`Bryozoan spp.`)), na.rm = T),
-    `Bryozoan spp. canopy` = rowSums(dplyr::select(., all_of(`Bryozoan canopy spp.`)), na.rm = T),
+    `Bryozoan spp. canopy` = rowSums(dplyr::select(., all_of(`Bryozoan spp. canopy`)), na.rm = T),
     `Tunicate spp.` = rowSums(dplyr::select(., all_of(`Tunicate spp.`)), na.rm = T),
-    `Tunicate spp. canopy` = rowSums(dplyr::select(., all_of(`Tunicate canopy spp.`)), na.rm = T),
+    `Tunicate spp. canopy` = rowSums(dplyr::select(., all_of(`Tunicate spp. canopy`)), na.rm = T),
     `Sponge spp.` = rowSums(dplyr::select(., all_of(`Sponge spp.`)), na.rm = T),
     `Sponge spp. canopy` = rowSums(dplyr::select(., all_of(`Sponge spp. canopy`)), na.rm = T)) %>% 
   dplyr::select(-c(
@@ -76,22 +76,21 @@ Percent_Cover_aggregated <- Percent_Cover_unpivoted_trimmed %>%
     all_of(`Red/Brown Algae spp.`), 
     all_of(`Red/Brown Algae spp. canopy`),
     all_of(`Bryozoan spp.`), 
-    all_of(`Bryozoan canopy spp.`), 
+    all_of(`Bryozoan spp. canopy`), 
     all_of(`Tunicate spp.`), 
     all_of(`Tunicate spp. canopy`), 
     all_of(`Sponge spp.`), 
     all_of(`Sponge spp. canopy`), 
     `UNID_spp.`
-    )) %>% 
-  relocate(`Green Algae spp.`:`Sponge spp. canopy`, .after = Bare)
+    )) %>%   relocate(`Green Algae spp.`:`Sponge spp. canopy`, .after = Bare)
 
 Percent_Cover_aggregated_pivoted <- Percent_Cover_aggregated %>%
-    pivot_longer(cols = Bare:`Zostera marina`,
+    pivot_longer(cols = Bare:`Zostera_marina`,
                names_to = "response_variable",
                values_to = "percent_cover") %>%
   mutate(Native = case_when(
     response_variable == "Bare" ~ "Bare",
-    response_variable %in% c("Barnacles", "Barnacle_canopy", "Oysters", "Oyster_canopy", "Green Algae spp.", "Green Algae spp. canopy", "Red/Brown Algae spp.", "Red/Brown Algae spp. canopy", "Zostera marina"
+    response_variable %in% c("Barnacles", "Barnacle_canopy", "Oysters", "Oyster_canopy", "Green Algae spp.", "Green Algae spp. canopy", "Red/Brown Algae spp.", "Red/Brown Algae spp. canopy", "Zostera_marina"
     ) ~ "Native",
     response_variable %in% c("Tunicate spp.", "Tunicate spp. canopy", "Bryozoan spp.", "Bryozoan spp. canopy", "Tubeworm", "Hydroid_canopy", "Hydroid"
     ) ~ "Non-native",
@@ -145,8 +144,10 @@ COSMO_OysterSizes <- COSMO_Processed %>%
   dplyr::select(!(Live_Oysters:Notes) & !c(`Error_Score_(Qualitative)`, `Oyster_count_quadrat_area_(m²)`)) %>%
   filter(!(Data_Recorder %in% c("SUM", "TOTAL")))%>% 
   dplyr::select(!c()) %>% 
-  mutate(Transect_Meter = replace_values(Transect_Meter, "NA.NA" ~ NA),
-         Substrate_Type = replace_values(Substrate_Type, "N/A" ~ NA)) %>%
+  mutate(
+    Transect_Meter = na_if(Transect_Meter, "NA.NA"),
+    Substrate_Type = na_if(Substrate_Type, "N/A")
+  ) %>%
   fill(Date:Substrate_Type, .direction = "down") %>% 
   mutate(across(`Oyster 1 (mm)`:`Oyster 10 (mm)`, ~as.numeric(.))) %>% 
   pivot_longer(cols = `Oyster 1 (mm)`:`Oyster 10 (mm)`,
@@ -350,7 +351,7 @@ Count_List <- c(
 `Tunicate spp. canopy` <- c("Colonial_tunicate_canopy")
 `Sponge spp.` <- c("Sponge", "Halichondria_spp.")
 `Sponge spp. canopy` <- c("Sponge_canopy")
-`Subtidal aquatic vegetation` <- c("Zostera marina")
+`Subtidal aquatic vegetation` <- c("Zostera_marina")
 
 #####Colors#####
 ######Aggregated Taxa######
@@ -363,7 +364,7 @@ responsevarcolors <- c(
   Hydroid = "#FF7F00", Hydroid_canopy = "#FF7F00",
   Mussels = "#654CFF", 
   Oysters = "#19B2FF", Oyster_canopy = "#19B2FF", 
-  `Red/Brown Algae spp.` = "#E51932", `Red Algae spp. canopy` = "#E51932", 
+  `Red/Brown Algae spp.` = "#E51932", `Red/Brown Algae spp. canopy` = "#E51932", 
   `Sponge spp.` = "gold", `Sponge spp. canopy` = "gold", 
   `Tubeworm` = "#CCBFFF", 
   `Tunicate spp.` = "#FF99BF", `Tunicate spp. canopy` = "#FF99BF",
