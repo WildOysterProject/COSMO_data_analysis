@@ -8,7 +8,7 @@ library(vegan)
 
 ####Input####
 COSMO_Input <-
-  read_xlsx("Input/COSMO Data Entry MASTER 08.24.2026.xlsx", sheet = 1)
+  read_xlsx("Input/COSMO Data Entry MASTER 08.25.2026.xlsx", sheet = 1)
 
 ####Processing####
 #####Initial Processing#####
@@ -36,7 +36,7 @@ Cosmo_Count_Density_Pivoted <- COSMO_Processed_Filtered %>%
   pivot_longer(cols = Live_Oysters:Live_Mussels,
                names_to = "Sessile Organism",
                values_to = "Count") %>% 
-  mutate(Density = Count/`Oyster_count_quadrat_length_(m)`,
+  mutate(Density = Count/`Oyster_count_quadrat_area_(m²)`,
         `Sessile Organism` = factor(sub("_", " ", `Sessile Organism`)),
         `Sessile Organism` = fct_relevel(`Sessile Organism`, Count_List))
   
@@ -62,36 +62,36 @@ Percent_Cover_aggregated <- Percent_Cover_unpivoted_trimmed %>%
   mutate(
     `Green Algae spp.` = rowSums(dplyr::select(., all_of(`Green Algae spp.`)), na.rm = T),
     `Green Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Green Algae spp. canopy`)), na.rm = T),
-    `Red Algae spp.` = rowSums(dplyr::select(., all_of(`Red Algae spp.`)), na.rm = T),
-    `Red Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Red Algae spp. canopy`)), na.rm = T),
+    `Red/Brown Algae spp.` = rowSums(dplyr::select(., all_of(`Red Algae spp.`)), na.rm = T),
+    `Red/Brown Algae spp. canopy` = rowSums(dplyr::select(., all_of(`Red Algae spp. canopy`)), na.rm = T),
     `Bryozoan spp.` = rowSums(dplyr::select(., all_of(`Bryozoan spp.`)), na.rm = T),
     `Bryozoan spp. canopy` = rowSums(dplyr::select(., all_of(`Bryozoan canopy spp.`)), na.rm = T),
     `Tunicate spp.` = rowSums(dplyr::select(., all_of(`Tunicate spp.`)), na.rm = T),
     `Tunicate spp. canopy` = rowSums(dplyr::select(., all_of(`Tunicate canopy spp.`)), na.rm = T),
     `Sponge spp.` = rowSums(dplyr::select(., all_of(`Sponge spp.`)), na.rm = T),
-    `Sponge spp. canopy` = rowSums(dplyr::select(., all_of(`Sponge canopy spp.`)), na.rm = T)) %>% 
+    `Sponge spp. canopy` = rowSums(dplyr::select(., all_of(`Sponge spp. canopy`)), na.rm = T)) %>% 
   dplyr::select(-c(
     all_of(`Green Algae spp.`), 
     all_of(`Green Algae spp. canopy`), 
-    all_of(`Red Algae spp.`), 
-    all_of(`Red Algae spp. canopy`),
+    all_of(`Red/Brown Algae spp.`), 
+    all_of(`Red/Brown Algae spp. canopy`),
     all_of(`Bryozoan spp.`), 
     all_of(`Bryozoan canopy spp.`), 
     all_of(`Tunicate spp.`), 
-    all_of(`Tunicate canopy spp.`), 
+    all_of(`Tunicate spp. canopy`), 
     all_of(`Sponge spp.`), 
-    all_of(`Sponge canopy spp.`), 
+    all_of(`Sponge spp. canopy`), 
     `UNID_spp.`
     )) %>% 
-  relocate(`Green Algae spp.`:`Tunicate spp. canopy`, .after = Bare)
+  relocate(`Green Algae spp.`:`Sponge spp. canopy`, .after = Bare)
 
 Percent_Cover_aggregated_pivoted <- Percent_Cover_aggregated %>%
-  pivot_longer(cols = Bare:`Diatom_canopy`,
+    pivot_longer(cols = Bare:`Zostera marina`,
                names_to = "response_variable",
                values_to = "percent_cover") %>%
   mutate(Native = case_when(
     response_variable == "Bare" ~ "Bare",
-    response_variable %in% c("Barnacles", "Barnacle_canopy", "Oysters", "Oyster_canopy", "Green Algae spp.", "Green Algae spp. canopy", "Red Algae spp.", "Red Algae spp. canopy"
+    response_variable %in% c("Barnacles", "Barnacle_canopy", "Oysters", "Oyster_canopy", "Green Algae spp.", "Green Algae spp. canopy", "Red/Brown Algae spp.", "Red/Brown Algae spp. canopy", "Zostera marina"
     ) ~ "Native",
     response_variable %in% c("Tunicate spp.", "Tunicate spp. canopy", "Bryozoan spp.", "Bryozoan spp. canopy", "Tubeworm", "Hydroid_canopy", "Hydroid"
     ) ~ "Non-native",
@@ -142,9 +142,9 @@ perquad_Native_Summary <- Primary_Percent_Cover_aggregated_pivoted %>%
 
 #####Oyster Sizes#####
 COSMO_OysterSizes <- COSMO_Processed %>%
-  dplyr::select(!(oys_per_m2:Notes)) %>%
-  filter(!(Data_Recorder %in% c("SUM", "TOTAL"))) %>% 
-  dplyr::select(!c(`Error_Score_(Qualitative)`:Live_Oysters)) %>% 
+  dplyr::select(!(Live_Oysters:Notes) & !c(`Error_Score_(Qualitative)`, `Oyster_count_quadrat_area_(m²)`)) %>%
+  filter(!(Data_Recorder %in% c("SUM", "TOTAL")))%>% 
+  dplyr::select(!c()) %>% 
   mutate(Transect_Meter = replace_values(Transect_Meter, "NA.NA" ~ NA),
          Substrate_Type = replace_values(Substrate_Type, "N/A" ~ NA)) %>%
   fill(Date:Substrate_Type, .direction = "down") %>% 
@@ -237,7 +237,7 @@ Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_aggregated_pivoted %
   geom_boxplot(aes(fill = response_variable), outlier.shape = NA, alpha = 0.8) +
   geom_jitter(height = 0, alpha = 0.2) + 
   stat_summary(fun.y="mean", shape = 5, size = 0.4, position = position_dodge(0.55), color = "black") +
-  scale_x_discrete(labels=c("Bare", "Barnacles", "Bryozoans", "Green Algae", "Hydroid", "Mussel", "Oyster", "Red Algae", "Sponges", "Tubeworm", "Tunicates")) +
+  scale_x_discrete(labels=c("Bare", "Barnacles", "Bryozoans", "Eelgrass", "Green Algae", "Hydroid", "Mussel", "Oyster", "Red/Brown Algae", "Sponges", "Tubeworm", "Tunicates")) +
   labs(y = "Primary-layer cover (%)", x = "Aggregated taxa list") +
   scale_fill_manual(name="Species List", values = responsevarcolors) + 
   basic_plot_aesthetics() +
@@ -342,30 +342,32 @@ Count_List <- c(
 #####Aggregated Taxa Groups#####
 `Green Algae spp.` <- c("Ulva_spp.", "Ulva_intestinalis", "Green_Algae_sp.", "Green_filamentous_algae", "Cladophora", "Bryopsis")
 `Green Algae spp. canopy` <- c("Ulva_canopy", "Ulva_intestinalis_canopy", "Green_alg_sp._canopy", "Green_filamentous_algae_canopy", "Cladophora_canopy")
-`Red Algae spp.` <- c("Mastocarpus", "Red_Algae_sp.", "Caulacanthus", "Chondracanthus", "Polyneura", "Red_filamentous_algae", "Fucus_spp.", "Gracilaria_spp.", "Cryptopleura_ruprechtiana", "Cryptopleura_spp.", "Gymnogongrus_spp.", "Polysiphonia_spp.")
-`Red Algae spp. canopy` <- c("Mastocarpus_canopy", "Red_alg_sp._canopy", "Caulacanthus_canopy", "Chondracanthus_canopy", "Polyneura_canopy", "Red_filamentous_algae_canopy", "Cryptopleura_ruprechtiana_canopy", "Cryptopleura_spp_canopy", "Mazzaela_splendens_canopy", "Fucus_canopy", "Gracilaria_canopy", "Gymnogongrus_spp_canopy", "Polysiphonia_canopy")
+`Red/Brown Algae spp.` <- c("Mastocarpus", "Red_Algae_sp.", "Caulacanthus", "Chondracanthus", "Polyneura", "Red_filamentous_algae", "Fucus_spp.", "Gracilaria_spp.", "Cryptopleura_ruprechtiana", "Cryptopleura_spp.", "Gymnogongrus_spp.", "Polysiphonia_spp.")
+`Red/Brown Algae spp. canopy` <- c("Mastocarpus_canopy", "Red_alg_sp._canopy", "Caulacanthus_canopy", "Chondracanthus_canopy", "Polyneura_canopy", "Red_filamentous_algae_canopy", "Cryptopleura_ruprechtiana_canopy", "Cryptopleura_spp_canopy", "Mazzaela_splendens_canopy", "Fucus_canopy", "Gracilaria_canopy", "Gymnogongrus_spp_canopy", "Polysiphonia_canopy")
 `Bryozoan spp.` <- c("Bryozoan", "Bugula_neritina", "Cryptosula_pallasiana", "Watersipora_spp.", "Schizoporella_spp.", "Encrusting_bryozoan_spp.", "Upright_bryozoan_spp.")
-`Bryozoan canopy spp.` <- c("Bryozoan_canopy", "Bugula_neritina_canopy", "Encrusting_bryozoan_canopy", "Upright_bryozoan_canopy")
+`Bryozoan spp. canopy` <- c("Bryozoan_canopy", "Bugula_neritina_canopy", "Encrusting_bryozoan_canopy", "Upright_bryozoan_canopy")
 `Tunicate spp.` <- c("Tunicate", "Colonial_tunicate", "Solitary_tunicate", "Botrylloides_spp.")
-`Tunicate canopy spp.` <- c("Colonial_tunicate_canopy")
+`Tunicate spp. canopy` <- c("Colonial_tunicate_canopy")
 `Sponge spp.` <- c("Sponge", "Halichondria_spp.")
-`Sponge canopy spp.` <- c("Sponge_canopy")
+`Sponge spp. canopy` <- c("Sponge_canopy")
+`Subtidal aquatic vegetation` <- c("Zostera marina")
 
 #####Colors#####
 ######Aggregated Taxa######
 responsevarcolors <- c(
   `Bare` = "grey", 
-  `Barnacles` = "#A5EDFF", `Barnacle_canopy` = "#A5EDFF",
-  `Bryozoan spp.` = "#FFFF99", `Bryozoan spp. Canopy` = "#FFFF99",
-  #`Diatom sp.` = "#FFBF7F", `diatom_canopy` = "#FFBF7F", 
-  `Green Algae spp.` =  "#32FF00", `Green Algae spp. Canopy` =  "#32FF00",
+  `Barnacles` = "#A5EDFF", `Barnacle canopy` = "#A5EDFF",
+  `Bryozoan spp.` = "#FFFF99", `Bryozoan spp. canopy` = "#FFFF99",
+  `Diatom sp.` = "#FFBF7F", `diatom_canopy` = "#FFBF7F", 
+  `Green Algae spp.` =  "#32FF00", `Green Algae spp. canopy` =  "#32FF00",
   Hydroid = "#FF7F00", Hydroid_canopy = "#FF7F00",
   Mussels = "#654CFF", 
   Oysters = "#19B2FF", Oyster_canopy = "#19B2FF", 
-  `Red Algae spp.` = "#E51932", `Red Algae spp. Canopy` = "#E51932", 
-  `Sponge` = "gold", `Sponge_canopy` = "gold", 
+  `Red/Brown Algae spp.` = "#E51932", `Red Algae spp. canopy` = "#E51932", 
+  `Sponge spp.` = "gold", `Sponge spp. canopy` = "gold", 
   `Tubeworm` = "#CCBFFF", 
-  `Tunicate spp.` = "#FF99BF", `Tunicate spp. Canopy` = "#FF99BF")
+  `Tunicate spp.` = "#FF99BF", `Tunicate spp. canopy` = "#FF99BF",
+  `Subtidal aquatic vegetation` = "green") #change?
 
 #######Sites######
 tempColors3 <- viridis(5, begin = 0.1, end = 0.8)
