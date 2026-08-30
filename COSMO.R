@@ -228,26 +228,81 @@ Count_Density_Boxplot <- Cosmo_Count_Density_Pivoted %>% #Add Box oysters
 Count_Density_Boxplot
 ggsave(path = "Plots", filename = "Sessile Organism Density vs. Site Boxplot.jpg", width = 10, height = 10)
 
+#####Primary Percent Cover vs Site Boxplot Dataframe#####
+## Create a separate df for plotting and filter out taxa that do not appear across entire dataset
+
+Primary_Percent_Cover_plot_data <- 
+  Primary_Percent_Cover_aggregated_pivoted %>%
+  group_by(response_variable) %>%
+  filter(any(percent_cover > 0, na.rm = TRUE)) %>%
+  ungroup()
+
 #####Primary Percent Cover vs Site Boxplot#####
-Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_aggregated_pivoted %>%
+
+Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_plot_data %>%
   ggplot(mapping = aes(
     x = response_variable,
-    y = percent_cover,
-  )
+    y = percent_cover
+  )) +
+  geom_boxplot(
+    aes(fill = response_variable),
+    outlier.shape = NA,
+    alpha = 0.8
   ) +
-  geom_boxplot(aes(fill = response_variable), outlier.shape = NA, alpha = 0.8) +
-  geom_jitter(height = 0, alpha = 0.2) + 
-  stat_summary(fun.y="mean", shape = 5, size = 0.4, position = position_dodge(0.55), color = "black") +
-  scale_x_discrete(labels=c("Bare", "Barnacles", "Bryozoans", "Eelgrass", "Green Algae", "Hydroid", "Mussel", "Oyster", "Red/Brown Algae", "Sponges", "Tubeworm", "Tunicates")) +
-  labs(y = "Primary-layer cover (%)", x = "Aggregated taxa list") +
-  scale_fill_manual(name="Species List", values = responsevarcolors) + 
+  geom_jitter(
+    height = 0,
+    alpha = 0.2
+  ) + 
+  stat_summary(
+    fun.y = "mean",
+    shape = 5,
+    size = 0.4,
+    position = position_dodge(0.55),
+    color = "black"
+  ) +
+  scale_x_discrete(
+    labels = c(
+      "Bare",
+      "Barnacles",
+      "Bryozoans",
+      "Eelgrass",
+      "Green Algae",
+      "Hydroid",
+      "Mussel",
+      "Oyster",
+      "Red/Brown Algae",
+      "Sponges",
+      "Tubeworm",
+      "Tunicates"
+    )
+  ) +
+  labs(
+    y = "Primary-layer cover (%)",
+    x = "Aggregated taxa list"
+  ) +
+  scale_fill_manual(
+    name = "Species List",
+    values = responsevarcolors
+  ) + 
   basic_plot_aesthetics() +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 12)) +
-  #scale_y_continuous(limits = c(0,40))+
-  scale_y_log10(breaks = c(0,5,10,25, 50, 75, 100)) +
-  #coord_cartesian(ylim = c(0, 40)) +
-  facet_grid(~Site, scales = "free_y")
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(
+      size = 9,
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    ),
+    axis.text.y = element_text(size = 12)
+  ) +
+  scale_y_log10(
+    breaks = c(0, 5, 10, 25, 50, 75, 100)
+  ) +
+  facet_grid(
+    ~Site,
+    scales = "free_y"
+  )
+
 Site_Primary_Percent_Cover_Boxplot
 
 #####Primary Percent Cover vs Year vs. Site Boxplot#####
