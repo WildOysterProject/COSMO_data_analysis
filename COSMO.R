@@ -289,9 +289,6 @@ Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_plot_data %>%
     legend.position = "none",
     axis.text.x = element_text(
       size = 9,
-      angle = 45,
-      hjust = 1,
-      vjust = 1
     ),
     axis.text.y = element_text(size = 12)
   ) +
