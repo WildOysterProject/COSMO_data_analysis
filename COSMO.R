@@ -5,6 +5,7 @@ library(openxlsx)
 library(viridis)
 library(patchwork)
 library(vegan)
+set.seed(999)
 
 ####Input####
 COSMO_Input <-
@@ -20,6 +21,7 @@ COSMO_Processed <- COSMO_Input %>%
     Date = openxlsx::convertToDate(Date),
     Year = format(Date, "%Y"),
     Season = ifelse(between(month(Date), 4, 10), "Summer", "Winter"),
+    Season = fct_relevel(Season, "Winter", "Summer"),
     totalPrimaryLiveCover = Primary_percent_cover - as.numeric(Bare)
   ) %>%
   unite("Transect_Meter", Transect_Replicate, Meter, sep = ".") %>%
@@ -631,3 +633,4 @@ countdensitycolors <- c(
 )
 
 #knitr::spin("COSMO.R", format = "Rmd", knit = FALSE)
+
