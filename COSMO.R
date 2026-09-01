@@ -355,6 +355,15 @@ ggsave(
   height = 10
 )
 
+#####Primary Percent Cover vs Site Boxplot Dataframe#####
+## Create a separate df for plotting and filter out taxa that do not appear across entire dataset
+
+Primary_Percent_Cover_plot_data <- 
+  Primary_Percent_Cover_aggregated_pivoted %>%
+  group_by(response_variable) %>%
+  filter(any(percent_cover > 0, na.rm = TRUE)) %>%
+  ungroup()
+
 #####Primary Percent Cover vs Site Boxplot#####
 
 # Primary_Percent_Cover_plot_data %>%
