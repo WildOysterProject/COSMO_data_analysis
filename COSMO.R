@@ -386,15 +386,18 @@ Site_Primary_Percent_Cover_Boxplot <- Primary_Percent_Cover_plot_data %>%
   ) +
   scale_x_discrete(
     labels = c(
-      "Bare",
-      "Barnacles",
-      "Bryozoans",
-      "Green Algae",
-      "Mussel",
-      "Oyster",
-      "Red/Brown Algae",
-      "Sponges",
-      "Tunicates"
+      "Bare" = "Bare",
+      "Barnacles" = "Barnacles",
+      "Bryozoan spp." = "Bryozoans",
+      "Green Algae spp." = "Green Algae",
+      "Mussels" = "Mussel",
+      "Oysters" = "Oyster",
+      "Red/Brown Algae spp." = "Red/Brown Algae",
+      "Sponge spp." = "Sponges",
+      "Tunicate spp." = "Tunicates",
+      "Zostera_marina" = "Eelgrass",
+      "Hydroid" = "Hydroid",
+      "Tubeworm" = "Tubeworm"
     )
   ) +
   labs(y = "Primary-layer cover (%)", x = "Aggregated taxa list") +
