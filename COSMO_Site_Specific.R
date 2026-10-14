@@ -79,11 +79,12 @@ Cosmo_Count_Density_Pivoted <- COSMO_Processed_Filtered %>%
 Count_Density_Summary <- Cosmo_Count_Density_Pivoted %>%
   group_by(Year, Site, `Sessile Organism`) %>%
   summarise(
-    n_quadrats = sum(!is.na(Count)),
+    n_quadrats = sum(!is.na(Density)), #counting nonmissing Density values rather than Count
     total_count = sum(Count, na.rm = TRUE),
     mean_density = mean(Density, na.rm = TRUE),
     median_density = median(Density, na.rm = TRUE),
     sd_density = sd(Density, na.rm = TRUE),
+    se_density = sd_density / sqrt(n_quadrats),
     min_density = min(Density, na.rm = TRUE),
     max_density = max(Density, na.rm = TRUE),
     .groups = "drop"
@@ -103,6 +104,7 @@ Site_Oyster_Density_Summary <- Count_Density_Summary %>%
     `Mean Density` = mean_density,
     `Median Density` = median_density,
     `SD Density` = sd_density,
+    `SE Density` = se_density,
     `Min Density` = min_density,
     `Max Density` = max_density
   )
@@ -128,6 +130,7 @@ Site_Oyster_Density_Table <- Site_Oyster_Density_Summary %>%
     `Mean Density` = "Mean",
     `Median Density` = "Median",
     `SD Density` = "SD",
+    `SE Density` = "SE",
     `Min Density` = "Min",
     `Max Density` = "Max"
   ) %>%
@@ -136,6 +139,7 @@ Site_Oyster_Density_Table <- Site_Oyster_Density_Summary %>%
       `Mean Density`,
       `Median Density`,
       `SD Density`,
+      `SE Density`,
       `Min Density`,
       `Max Density`
     ),
@@ -147,6 +151,7 @@ Site_Oyster_Density_Table <- Site_Oyster_Density_Summary %>%
       `Mean Density`,
       `Median Density`,
       `SD Density`,
+      `SE Density`,
       `Min Density`,
       `Max Density`
     )
