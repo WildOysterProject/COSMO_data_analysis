@@ -56,7 +56,7 @@ library(vegan)
 
 The source COSMO monitoring dataset is maintained separately from this GitHub repository. The `Input/` directory is excluded from version control to prevent source datasets from being inadvertently committed to GitHub.
 
-Information about public access to COSMO data and associated archival datasets will be added as data products are prepared for release.
+Information about public access to COSMO data and associated archival datasets will be added to https://zenodo.org/records/23291371
 
 ## About Wild Oyster Project
 
