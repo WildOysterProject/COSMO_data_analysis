@@ -62,7 +62,7 @@ Information about public access to COSMO data and associated archival datasets w
 
 Wild Oyster Project works to restore native oysters and oyster habitat while engaging communities in monitoring, restoration, and stewardship.
 
-For more information, visit the Wild Oyster Project website.
+For more information, visit the Wild Oyster Project website. https://wildoysters.org
 
 ## Contributors
 
